@@ -1,0 +1,261 @@
+基础准备工作：
+1.在服务端节点安装nmon；
+2.确定接口访问方式、URL及入参
+3.jmeter安装
+
+nmon
+cd nmon
+make -f makefile ——》nmon_power_rehel3
+拷贝，cp nmon_power_rhel3 /usr/bin/nmon
+
+测试步骤：
+1.先通过调整并发数，确定最佳TPS时并发，在同等间隔细化并发参数；
+2.导出聚合报告；
+3.查看后端服务器资源消耗，进行调优；
+4.重新调整压测并发数并进行再次测试，达到性能要求；
+
+备注：
+1.需关注错误率，若是jmeter报“Address already in use”错误，如果是查询接口，可将implementation参数修改为Java，不影响性能；有入库数据的接口不可以修改此参数，会影响结果；
+2.如有错误，需先进行错误排查，修改后再次进行测试
+3.在Windows编辑完成后点击保存，可以在bin路径下生成脚本文件，将此文件拷贝至Linux路径下，执行./jmeter -n -t 10.jmx（注意修改文件及log路径
+4.Linux执行时建议使用screen或nohup后台执行
+nohup ./jmeter -n -t 10.jmx >test1220 &
+
+
+
+sh jmeter.sh -n -t 脚本名称.jmx（带路径的，要不然服务器找不到你的文件，除非你就放在当前执行命令的地方，比如我的是jmeter的bin目录) -l? jtl名称.jtl (同样需要带路径，原理如上)
+说一下几个参数，反正也都是网上都有介绍。
+-n : 代表以没有图形化界面启动
+-t 表示后面要测试的测试计划
+-l 表示生成测试报告 jtl文件
+跑完之后可以下载jtl文件导入到我们的jmeter软件中添加监听器查看结果
+通过jtl转换成html
+sh jmeter.sh -g jtl文件 -o? html路径?（会生成个文件夹，里面有各种js，css之类） 如 sh jmeter.sh -g xxxxxx.jtl -o result/html
+
+nmon的用法
+# ./nmon  –f  -s 30 –c 100
+说明：-f 以文件的形式输出，默认输出是机器名+日期.nmon的格式，也可以用-F指定输出的文件名，
+例如: # ./nmon_x86_rhel4 –F test.nmon  -s 30 –c 100；
+-s是采样频率，隔多长时间收集一次，这里我指定的是30秒一次；
+-c是采样次数，一共要收集多少次，这里我指定的是100次。
+
+
+沃云
+123.126.40.20  2244  wit  wit@lzj!@#  root  2xWApj
+123.126.40.20  2245  wit  wit@lzj!@#  root  3B5ns5
+
+查看文件中的错误信息
+grep erro 文件名
+
+清理缓存
+echo 3 > /proc/sys/vm/drop_caches
+
+
+
+
+
+{
+	"body": {
+		"data": {
+			"userid": "9304640",
+			"username": "fzz7ff20a",
+			"teleno": "18101325331",
+			"imei": "6f5d5c0b4cf891557b46d669172ab4cc2ce0c8d1",
+			"userflag": 0,
+			"role": "0",
+			"headimg": "ios-bug",
+			"newHeadimg": "http://pic.dalonglzj.com/images/wuyepicture/ios-bug",
+			"customAppId": "dragon"
+		},
+		"list": [],
+		"datastatic": {}
+	},
+	"head": {
+		"action": "login",
+		"resultCode": "0",
+		"resultcode": "0",
+		"errormsg": "OK!"
+	}
+}
+
+
+https://testerhome.com/topics/8839
+使用JMeter录制手机App脚本
+1、 添加线程组
+? 选中“测试计划”，右键依次添加【线程组】，用于保存录制的脚本。
+2、 添加HTTP代理服务器
+? 选中“工作台”，右键依次添加【HTTP代理服务器】。
+? 配置HTTP代理服务器，端口可以使用默认8080，目标控制器选择“测试计划>线程组”。
+? 启动HTTP代理服务器，弹出“Root CA……”的提示框，点击“确定”表示HTTP代理服务器开始工作。
+3、 配置手机网络代理
+? 进入手机WIFI设置，选择一个WIFI，长按WIFI名称，在弹出的提示框中，选择“修改网络”
+? 在修改网络页，勾选【显示高级选项】，填写代理服务器主机名(JMeter软件所在的主机IP地址)和代理服务器端口(添加HTTP代理服务器配置的端口，默认8080)，保存配置
+4、 查看JMeter录制的手机App脚本
+
+
+备注：本人不太喜欢用Jmeter的录制功能，因为会录制很多无效的网络请求，但若不知道接口参数的情况下，可以采用录制方式，然后删除修改。
+
+线程组的设置
+普通线程组
+1、 线程数：设置并发用户线程数量，即通常意义的并发用户数
+2、 Ramp-Up Period （in seconds）：设置并发用户加载时间，假设并发用户数设置为100，此处设置为10，则认为jmeter会在10s内加载完成100并发用户数，也就是说每隔10秒加载一个
+3、 循环次数：输入框与复选框只能选择一种，不能同时被选择为场景循环方式；输入框输入数字则被认为是当前线程组所控制的脚本区域的执行次数；【永远】复选框选择后，输入框内的数字将失效，启动后脚本将一直执行下去。
+4、 调度器：对于调度而言，顾名思义就是我们想在什么时间开始运行，运行多长时间自动停止诸如此类的场景需求均可以在此设置。
+　　? 启动时间：在设置时间点开始运行场景，比如你想在下班后开始运行，如果时间小于当前时间，启动后立即执行，大于当前时间，启动后等待本地时间到了自动运行
+　　? 结束时间：在设置时间点结束运行场景，比如上班前结束运行，结束时间如果小于开始时间或者当前时间，自动运行后立即终止
+　　? 持续时间：设置当前场景持续运行的时间
+　　? 启动延迟：设置场景启动后多长时间再开始真正运行，比如你想在下班后5分钟开始运行场景
+其中持续时间和启动延迟的优先级高于启动时间和结束时间，也就是说当你设置了持续时间或者启动延迟，那么你的启动时间或者结束时间将失效，
+5、 几种设置场景组合：
+　　? 不勾选【永远】，选择【调度器】，设置完成后，启动运行也只会运行当前并发用户数循环次数，运行完成即会结束。所以此中选择可用于希望未来某时间点开始运行完成并发用户数循环次数的场景
+　　? 勾选【永远】，设置启动时间及结束时间，持续时间和启动延迟均为空，可用于希望未来某时间点自动运行并且到未来某时间点自动结束的场景
+　　? 勾选【永远】， 设置 持续时间和启动延迟， 可用于希望在启动多久后自动运行并持续多长时间的场景
+
+另外介绍一个调试工具Debug Sampler，会把我们自定义的变量输出在response data中，方便我们调试的时候使用，但在正式执行脚本时需要删除Debug Sample
+
+
+jp@gc - Stepping Thread Group
+
+
+
+类似loadrunner的场景设置，解释:
+? This Group will start 100 threads：这次的测试总共会起100个线程。
+? First , wait for 0 seconds：等待0s后开始起线程，也就是不等待直接起线程。
+? Then start 10 threads every 30 seconds：每起10个线程后会运行30s，再起余下的10个线程，再运行30s，以此类推。
+? Using ramp-up 5 seconds：前面每起多少个线程的时候花5s，与上面结合起来即5s内起10个线程，运行30s，然后再再5s内再起10个线程，再运行30s，以此类推。
+? Then hold load for 60 seconds. ：全部的线程起来后，运行60s 后开始停止（跟loadrunner类似，从jmeter聚合报告里面可以看出来，这里的hold load 的意思，其实是这些线程，一直在请求，相当于jmeter普通线程组里面的循环运行）。
+? Finally , stop 5 threads every 1 seconds：最后停止线程，5个线程停一次，等1s再停5个线程（当然，第一次是hold时间一过就先停5个线程，然后等1s再停余下的5个线程）。
+
+介绍几个常用的逻辑控制器
+JMeter中的Logic Controller分为两类：
+a) 控制测试计划执行过程中节点的逻辑执行顺序，如：循环控制器（Loop Controller）、if控制器（If Controller）等；
+b) 对测试计划中的脚本进行分组、方便JMeter统计执行结果以及进行脚本的运行时控制等，如：吞吐量控制器（Throughput Controller）、事务控制器（Transaction Controller）。
+一、ForEach控制器（ForEach Controller）
+　　作用：ForEach控制器一般和用户自定义变量一起使用，其在用户自定义变量中读取一系列相关的变量。该控制器下的采样器或控制器都会被执行一次或多次，每次读取不同的变量值。
+二、包含控制器（Include Controller）
+　　作用：用于引用外部的Jmx文件；从而控制多个测试计划组合
+三、事务控制器（Transaction Controller）
+　　作用： 事务控制器会生产一个额外的采样器，用来统计该控制器子结点的所有时间。
+四、仅一次控制器（Once Only Controller）
+　　作用：在测试计划执行期间，该控制器下的子结点对每个线程只执行一次，登录场景经常会使用到这个控制器。
+五、吞吐量控制器（Throughput Controller）
+　　作用：控制其下的子节点的执行次数与负载比例分配，也有两种方式：
+　　Total Executions：设置运行次数
+　　Percent Executions：设置运行比例(1~100之间，不用写%)
+　　如：设置线程组循环5次，吞吐量控制器1：百分比40，吞吐量控制器2：百分比60
+
+
+六、If 控制器（If Controller）
+　　作用：根据给定表达式的值决定是否执行该节点下的子节点，默认使用javascript的语法进行判断
+
+
+脚本参数化的几种方式
+一、使用Jmeter自带函数获取参数值
+　　Jmeter中可以产生值的函数有：Random( , , )，threadNum，CSVRead( , )，StringFromFile( , , , ) 。函数调用方法就不细说了，因为Jmeter中有函数助手
+
+
+　　然后将函数复制到需要用到随机数的地方，当我们设置的线程数超过随机数范围时，随机数将会重复生成。
+
+不过需要重点介绍下正则表达式的使用，后续有需要用到关联测试，因为在测试过程过有些数据是经常发生变化的，要获取并使用这些数据，就要使用关联。
+
+
+1、 第一个参数：用于解析服务器响应数据的正则表达式。它会找到所有的匹配项。如果测试人员希望将表达式中的某部分应用在模板字符串中，记得加上圆括号。
+2、 第二个参数：这是一个模板字符串，函数会动态填写字符串的部分内容。要在字符串中引用正则表达式捕获的匹配组合，请使用语法：$[group_number]$。例如$1$或者 $2$。测试人员的模板可以是任何字符串
+3、 第三个参数：第3个参数告诉JMeter使用第几次匹配。测试人员的正则表达式可能会找到多个匹配项。对此，测试人员有4种选择：
+? 整数，直接告诉JMeter使用第几个匹配项。 “1”对应第一个匹配，“2”对应第二个匹配，以此类推
+? RAND，告诉JMeter随机选择一个匹配项
+? ALL，告诉JMeter使用所有匹配项，为每一个匹配项创建一个模板字符串，并将它们连接在一起
+? 浮点值0到1之间，根据公式（找到的总匹配数目*指定浮点值）计算使用第几个匹配项，计算值向最近的整数取整
+4、 第四个参数：如果在上一个参数中选择了“ALL”，那么这第4个参数会被插入到重复的模板值之间
+5、 第五个参数：如果没有找到匹配项返回的默认值
+6、 第六个参数：重用函数解析值的引用名，参见上面内容
+7、 第七个参数：输入变量名称。如果指定了这一参数，那么该变量的值就会作为函数的输入，而不再使用前面的采样结果作为搜索对象
+
+二、使用CSV Data Set Config获取参数值
+
+
+三、使用用户定义的变量获取参数值
+
+
+　　一般配合ForEach控制器一起使用
+
+参数值的传递
+一、利用Cookie进行值的传递
+　　用JMeter进行接口调试时，有时候会遇到需要登录的情况，如请求wetest的DataSearchAjax接口：
+
+
+　　出现这种情况的原因很明显是未登录引起的。一个较好的解决方法就是将登录后的cookies保存下来，在访问DataSearchAjax接口的时候，带上用户登录后的cookies信息进行查看。
+　　在JMeter中，我们可以通过如下途径进行cookies的传递，如下图添加HTPP Cookie管理器：
+
+
+　　再给登录的接口添加前置处理器Bean Shell PreProcessor，用来保存登录的cookies：
+
+
+　　我们要在Bean Shell PreProcessor里面添加我们的cookies值了。
+二、利用正则匹配提取上一个接口的返回数据作为下个请求的输入
+　　用JMeter进行接口调试时，经常会遇到上一接口的返回值中的某个字段，要作为下一接口的输入，这种情况下，我们需要利用正则匹配来提取我们需要的值。
+　　例如，若要提取相应数据中的userid字段作为下个接口的输入的话，可以在该接口请求后面添加正则表达式提取器：
+
+
+　　我们给正则表达式提取器命名为get_userid，并填写引用名称、正则表达式、模板、匹配数值、缺省值，填写后的如如下：
+
+
+　　填写完成后，在添加新的HTTP请求，来测试提取到的user_id字段：
+
+
+介绍几个定时器的用法，类于loadrunner中的thinktime，集合点的设置
+一、固定定时器（Constant Timer）
+
+
+　　这是一个很重要的定时器，如果你需要让每个线程在请求之前按相同的指定时间停顿，那么可以使用这个定时器；需要注意的是，固定定时器的延时不会计入单个sampler的响应时间，但会计入事务控制器的时间。
+　　对于“java请求”这个sampler来说，定时器相当于loadrunner中的pacing（两次迭代之间的间隔时间）；
+　　对于“事务控制器”来说，定时器相当于loadrunner中的think time（思考时间：实际操作中，模拟真实用户在操作过程中的等待时间）。
+二、高斯随机定时器（Gaussian Random Timer）
+
+
+　　如果需要让每个线程在请求之前按随机的时间停顿，那么可以使用这个定时器，上图表示暂停时间会分布在100到400之间
+三、同步定时器（Synchronizing Timer）
+
+
+　　这个定时器和loadrunner当中的集合点（rendezvous point）作用相似，其作用是：阻塞线程，直到指定的线程数量到达后，再一起释放，可以瞬间产生很大的压力
+（1）Number of Simulated Users to Group by:模拟用户的数量，即指定同时释放的线程数数量
+（2）Timeout in milliseconds:超时时间，即超时多少毫秒后同时释放指定的线程数
+
+监听器配置
+　　将下载的JMeterPlugins.jar包复制到Jmeter的lib目录下面的ext目录下面,重新启动Jmeter，我们点击添加就可以看到出现了很多的jp@gc-开头的文件。这里监控内存我们使用的是：jp@gc - PerfMon Metrics Collectot
+　　在使用之前，我们需要下载ServerAgent-2.2.1，然后运行/serverAgent/startAgent.bat这个文件，我们需要将serverAgent目录及下面的文件复制到我们测试的服务器上，然后点击打开，它的默认端口为4444。
+　　常用的监听器还有如下jp@gc - Active Threads Over Time，jp@gc - Transactions per Second，jp@gc - Response Times Over Time，jp@gc - Composite Graph，保存响应到文件，聚合报告，察看结果树
+
+
+其中jp@gc - Composite Graph可以将多个监听视图进行合并分析
+
+最后测试报告的生成
+　　使用jmeter进行性能测试，运行完毕后生成html格式的测试报告，需要进行如下操作（3.0含及以上的版本）：
+一、在jmeter.properties或者user.properties确认如下配置项
+
+? jmeter.save.saveservice.bytes = true
+? jmeter.save.saveservice.label = true
+? jmeter.save.saveservice.latency = true
+? jmeter.save.saveservice.response_code = true
+? jmeter.save.saveservice.response_message = true
+? jmeter.save.saveservice.successful = true
+? jmeter.save.saveservice.thread_counts = true
+? jmeter.save.saveservice.thread_name = true
+? jmeter.save.saveservice.time = true
+? jmeter.save.saveservice.timestamp_format = ms
+? jmeter.save.saveservice.timestamp_format = yyyy/MM/dd HH:mm:ss
+o 如果希望在Errors报告中展示更详细数据，需要确保如下配置: jmeter.save.saveservice.assertion_results_failure_message = true
+o 如果使用了事务控制器(Transaction Controller)，确认Generate parent sample为未勾选状态
+
+运行jmeter程序，在命令行输入如下信息
+1）Windows系统
+输入格式如下：jmeter.bat -n -t -l -e -o 
+实际输入：C:\apache-jmeter-3.0\bin\jmeter.bat -n -t Movie.jmx -l movie.jtl -e -o test
+
+2）Linux系统
+输入格式如下：jmeter -n -t -l -e -o 
+实际输入：/opt/apache-jmeter-3.0/bin/jmeter -n -t final-result.jmx -l final-result.jtl -e -o /opt/apache-jmeter-3.0/test
+
+生成HTML报告：
+sh jmeter.sh -n -t jfcx_dljk.jmx -l dl.jtl -e -o /data/shd/test/dl
+
